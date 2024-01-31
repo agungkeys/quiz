@@ -32,7 +32,7 @@ const Questions: React.FC<QuestionsProps> = () => {
 
   useEffect(() => {
     const list = localStorage.getItem('questions') || ''
-    setListQuestion(JSON.parse(list))
+    setListQuestion(list ? JSON.parse(list) : [])
   }, [])
   
   return (
