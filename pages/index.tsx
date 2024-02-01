@@ -151,21 +151,28 @@ const Home: React.FC<HomeProps> = () => {
         {/* <h1 className='p-4 pt-12 text-4xl font-bold text-center'>Babak Ke-1</h1> */}
         <div className='pt-4 pb-4'>
           <div className='mt-3'>
-            <div className='bg-gray-100 rounded-2xl p-8 h-[18em] border-4'>
-              <h1 className='text-2xl font-semibold text-blue-700 pb-2 text-center'>Question</h1>
+            <div className='bg-gray-100 rounded-2xl p-4 h-[15em] border-4'>
+              <div className='flex justify-center items-center gap-2 pb-2'>
+                <h1 className='text-2xl font-semibold text-blue-700 text-center'>
+                  Question 
+                </h1>
+                {isAnimating &&
+                  <Loader2 className="h-6 w-6 animate-spin text-blue-700" />
+                || null }
+              </div>
               <div className='text-center'>
                 {isReady && 
-                  <span className='text-4xl'>{currentQuestion?.question || 'Soal Habis'}</span>
+                  <span className='text-3xl'>{currentQuestion?.question || 'Soal Habis'}</span>
                 || null}
               </div>
             </div>
           </div>
           <div className='mt-8'>
-            <div className={`${isBlinkingWrong ? 'bg-red-200' : 'bg-blue-100'} rounded-2xl p-8 h-[14em]`}>
+            <div className={`${isBlinkingWrong ? 'bg-red-200' : 'bg-blue-100'} rounded-2xl p-4 h-[13em]`}>
             <h1 className='text-2xl font-semibold text-blue-700 pb-2 text-center'>Answer</h1>
               {isShowAnswer && 
                 <div className='text-center'>
-                  <span className='text-4xl font-semibold'>{currentQuestion.answer}</span>
+                  <span className='text-3xl font-semibold'>{currentQuestion.answer}</span>
                 </div>
               || null}
               {isBlinkingWrong ?
@@ -194,8 +201,8 @@ const Home: React.FC<HomeProps> = () => {
               <Button disabled={!isAnimating} onClick={handleStopAnimation} variant={`destructive`} className='text-xl'>Stop</Button>
             </div>
           </div>
-          <div className='flex gap-6 mt-5'>
-            <div className='py-3 flex ml-auto gap-[8em]'>
+          <div className='flex gap-6 mt-2'>
+            <div className='py-3 flex ml-auto gap-[3em]'>
               <Button disabled={isAnimating} onClick={handleAnswerTrue} variant={`success`} className='text-xl'>Benar</Button>
               <audio ref={audioRightRef} src="/right.mp3" />
               <Button disabled={isAnimating} onClick={handleAnswerFalse} className='text-xl' variant={`destructive`}>Salah</Button>
