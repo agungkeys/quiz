@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react';
+import React, { ChangeEvent, useEffect, useState } from 'react';
 import Layout from '@/components/layout';
 import {
   Table,
@@ -47,16 +47,28 @@ interface IQuestions {
   status?: boolean;
 }
 
+const initForm = {
+  id: 0,
+  answer: '',
+  question: '',
+  status: false,
+}
+
 const Questions: React.FC<QuestionsProps> = () => {
   const { toast } = useToast()
   const [listQuestion, setListQuestion] = useState<IQuestions[]>([]);
   const [openDialog, setOpenDialog] = useState<boolean>(false);
   const [question, setQuestion] = useState<IQuestions>();
+  const [formData, setFormData] = useState<IQuestions>(initForm);
 
   useEffect(() => {
+    loadData()
+  }, [])
+
+  const loadData = () => {
     const list = localStorage.getItem('questions') || ''
     setListQuestion(list ? JSON.parse(list) : [])
-  }, [])
+  }
 
   const handleResetStatus = () => {
     const newArray:IQuestions[] = listQuestion.map(item => ({
@@ -69,12 +81,10 @@ const Questions: React.FC<QuestionsProps> = () => {
       description: "All status has been reset",
       variant: "success"
     })
-    const list = localStorage.getItem('questions') || ''
-    setListQuestion(list ? JSON.parse(list) : [])
+    loadData()
   }
 
   const handleOpenDialog = (data:IQuestions | null = null) => {
-    console.log("🚀 ~ handleOpenDialog ~ data:", data)
     setOpenDialog(true);
     if(data){
       setQuestion(data);
@@ -84,8 +94,55 @@ const Questions: React.FC<QuestionsProps> = () => {
 
   }
 
-  const handleAddData = () => {
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
 
+  const handleStatusChange = () => {
+    setFormData((prevData) => ({
+      ...prevData,
+      status: !prevData.status,
+    }));
+  };
+
+  const handleSaveData = (data:IQuestions | null = null) => {
+    if(data?.id){
+      console.log("MODE EDIT")
+    }else{
+      const id = listQuestion.length
+      const data = {
+        ...formData,
+        id: id + 1
+      }
+      const tempData = [
+        ...listQuestion,
+        data
+      ]
+      localStorage.setItem('questions', JSON.stringify(tempData));
+      toast({
+        title: "Success",
+        description: "Data has been saved",
+        variant: "success"
+      })
+      setFormData(initForm);
+      setOpenDialog(false);
+      loadData();
+    }
+  }
+
+  const handleDeleteData = (id?:number) => {
+    const tempData = listQuestion.filter(item => item.id !== id);
+    localStorage.setItem('questions', JSON.stringify(tempData));
+    toast({
+      title: "Success",
+      description: "Data has been deleted",
+      variant: "success"
+    });
+    loadData();
   }
   
   return (
@@ -131,7 +188,7 @@ const Questions: React.FC<QuestionsProps> = () => {
                       <Button onClick={() => handleOpenDialog(item)}>
                         <HiOutlinePencil size={15} />
                       </Button>
-                      <Button variant={`destructive`}>
+                      <Button onClick={() => handleDeleteData(item.id)} variant={`destructive`}>
                         <HiOutlineTrash size={15} />
                       </Button>
                     </div>
@@ -148,14 +205,17 @@ const Questions: React.FC<QuestionsProps> = () => {
             <DialogTitle>{question?.id ? 'Edit Data Question' : 'Add Data Question'}</DialogTitle>
           </DialogHeader>
           <div className="grid gap-4 py-4">
+            
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="question" className="text-right text-md">
                 Question
               </Label>
               <Textarea 
-                id='question'
+                name='question'
                 className='col-span-3 w-full h-10 text-md' 
                 placeholder='Masukkan soal'
+                value={formData.question}
+                onChange={handleInputChange}
               />
               {/* <Input
                 id="name"
@@ -168,9 +228,11 @@ const Questions: React.FC<QuestionsProps> = () => {
                 Answer
               </Label>
               <Textarea 
-                id='answer'
+                name='answer'
                 className='col-span-3 w-full h-10 text-md' 
                 placeholder='Masukkan jawaban'
+                value={formData.answer}
+                onChange={handleInputChange}
               />
               {/* <Input
                 id="username"
@@ -182,7 +244,11 @@ const Questions: React.FC<QuestionsProps> = () => {
               <Label htmlFor="status" className="text-right text-md">
                 Status
               </Label>
-              <Switch id="status" />
+              <Switch 
+                name="status" 
+                checked={formData.status}
+                onCheckedChange={handleStatusChange}
+              />
               {/* <Input
                 id="username"
                 defaultValue="@peduarte"
@@ -191,7 +257,7 @@ const Questions: React.FC<QuestionsProps> = () => {
             </div>
           </div>
           <DialogFooter>
-            <Button type="submit">Save</Button>
+            <Button onClick={() => handleSaveData(question)}>Save</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
