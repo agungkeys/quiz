@@ -31,11 +31,12 @@ const Home: React.FC<HomeProps> = () => {
 
   const audioWrongRef = useRef<HTMLAudioElement>(null);
   const audioRightRef = useRef<HTMLAudioElement>(null);
+  const audioRouletteRef = useRef<HTMLAudioElement>(null);
   const [isReady, setIsReady] = useState<boolean>(false);
   const [currentQuestion, setCurrentQuestion] = useState<IQuestions>(questions[0]);
   const [userAnswer, setUserAnswer] = useState<string>('');
   const [isAnimating, setIsAnimating] = useState<boolean>(false);
-  const [usedQuestions, setUsedQuestions] = useState<IQuestions[]>([]);
+  // const [usedQuestions, setUsedQuestions] = useState<IQuestions[]>([]);
   const [isShowAnswer, setIsShowAnswer] = useState<boolean>(false);
   const [isBlinkingWrong, setIsBlinkingWrong] = useState<boolean>(false);
 
@@ -57,7 +58,6 @@ const Home: React.FC<HomeProps> = () => {
       }, 1000);
     }
 
-    // Cleanup the interval when the component unmounts or animation is turned off
     return () => clearInterval(blinkInterval);
   }, [isBlinkingWrong]);
 
@@ -79,20 +79,27 @@ const Home: React.FC<HomeProps> = () => {
           setCurrentQuestion(newQuestion);
           setUserAnswer('');
         }
-      }, 100);
+      }, 70);
     }
 
     return () => clearInterval(interval);
-  }, [isAnimating, usedQuestions]);
+  }, [isAnimating, listQuestion]);
 
   const handleStartAnimation = () => {
     setIsAnimating(true);
     setIsShowAnswer(false);
-    setIsReady(true)
+    setIsReady(true);
+    if (audioRouletteRef.current) {
+      audioRouletteRef.current.play();
+    }
   };
 
   const handleStopAnimation = () => {
     setIsAnimating(false);
+    if (audioRouletteRef.current) {
+      audioRouletteRef.current.pause();
+      audioRouletteRef.current.currentTime = 0;
+    }
   };
 
   const handleShowAnswer = () => {
@@ -100,9 +107,6 @@ const Home: React.FC<HomeProps> = () => {
   }
 
   const handleSetQuestion = () => {
-    // if (currentQuestion && !usedQuestions.some((q) => q.id === currentQuestion.id)) {
-    //   setUsedQuestions([...usedQuestions, currentQuestion]);
-    // }
     const indexToUpdate = listQuestion.findIndex((item: { id: number }) => item.id === currentQuestion.id);
 
     if (indexToUpdate !== -1) {
@@ -146,16 +150,8 @@ const Home: React.FC<HomeProps> = () => {
       <div className='max-w-screen-xl mx-auto px-4'>
         {/* <h1 className='p-4 pt-12 text-4xl font-bold text-center'>Babak Ke-1</h1> */}
         <div className='pt-4 pb-4'>
-          {/* {isAnimating ? 
-            <div className='border-2 border-gray-400 rounded-2xl p-8'>
-              <span className='text-2xl line-clamp-1'>{currentQuestion.question}</span>
-            </div>
-            :
-            null
-          } */}
-
           <div className='mt-3'>
-            <div className='bg-gray-100 rounded-2xl p-8 h-[20em] border-4'>
+            <div className='bg-gray-100 rounded-2xl p-8 h-[18em] border-4'>
               <h1 className='text-2xl font-semibold text-blue-700 pb-2 text-center'>Question</h1>
               <div className='text-center'>
                 {isReady && 
@@ -164,8 +160,8 @@ const Home: React.FC<HomeProps> = () => {
               </div>
             </div>
           </div>
-          <div className='mt-3'>
-            <div className={`${isBlinkingWrong ? 'bg-red-200' : 'bg-blue-100'} rounded-2xl p-8 h-[18em]`}>
+          <div className='mt-8'>
+            <div className={`${isBlinkingWrong ? 'bg-red-200' : 'bg-blue-100'} rounded-2xl p-8 h-[14em]`}>
             <h1 className='text-2xl font-semibold text-blue-700 pb-2 text-center'>Answer</h1>
               {isShowAnswer && 
                 <div className='text-center'>
@@ -182,7 +178,7 @@ const Home: React.FC<HomeProps> = () => {
             </div>
           </div>
 
-          <div className='flex pt-[2em]'>
+          <div className='flex pt-[4em]'>
             <div className='py-3 flex ml-auto gap-6'>
               <Button onClick={handleAnswerToLocalStorage} className='text-xl'>Set Question</Button>
               <Link href='/questions'>
@@ -194,8 +190,8 @@ const Home: React.FC<HomeProps> = () => {
                 || null}
                 Acak Soal
               </Button>
+              <audio ref={audioRouletteRef} src="/roulette.mp3" />
               <Button disabled={!isAnimating} onClick={handleStopAnimation} variant={`destructive`} className='text-xl'>Stop</Button>
-              {/* <Button disabled={isAnimating}  onClick={handleShowAnswer} variant={`secondary`} className='text-xl'>{isShowAnswer ? `Tutup Jawaban` : `Lihat Jawaban`}</Button> */}
             </div>
           </div>
           <div className='flex gap-6 mt-5'>

@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ReactNode } from "react";
+import { Toaster } from "./ui/toaster";
 
 export default function Layout(props: { title: string; children: ReactNode; }) {
   const {title, children} = props;
@@ -28,6 +29,7 @@ export default function Layout(props: { title: string; children: ReactNode; }) {
           <span className="text-white">Copyright &copy; 2024 Liberteam Technology</span>
         </div>
       </div> */}
+      <Toaster />
     </div>
   )
 }
