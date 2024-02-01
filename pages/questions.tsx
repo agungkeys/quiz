@@ -88,8 +88,10 @@ const Questions: React.FC<QuestionsProps> = () => {
     setOpenDialog(true);
     if(data){
       setQuestion(data);
+      setFormData(data)
     }else{
       setQuestion({})
+      setFormData(initForm);
     }
 
   }
@@ -111,7 +113,6 @@ const Questions: React.FC<QuestionsProps> = () => {
 
   const handleSaveData = (data:IQuestions | null = null) => {
     if(data?.id){
-      console.log("MODE EDIT")
     }else{
       const id = listQuestion.length
       const data = {
@@ -132,6 +133,29 @@ const Questions: React.FC<QuestionsProps> = () => {
       setOpenDialog(false);
       loadData();
     }
+  }
+
+  const handleUpdateData = () => {
+    const tempData = listQuestion.map(item => {
+      if (item.id === formData.id) {
+        return { 
+          ...item, 
+          answer: formData.answer,
+          question: formData.question, 
+          status: formData.status
+        };
+      }
+      return item;
+    });
+    localStorage.setItem('questions', JSON.stringify(tempData));
+      toast({
+        title: "Success",
+        description: "Data has been updated",
+        variant: "success"
+      })
+      setFormData(initForm);
+      setOpenDialog(false);
+      loadData();
   }
 
   const handleDeleteData = (id?:number) => {
@@ -257,7 +281,7 @@ const Questions: React.FC<QuestionsProps> = () => {
             </div>
           </div>
           <DialogFooter>
-            <Button onClick={() => handleSaveData(question)}>Save</Button>
+            <Button onClick={question?.id ? () => handleUpdateData() : () => handleSaveData(question)}>Save</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
