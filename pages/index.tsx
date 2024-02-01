@@ -178,7 +178,7 @@ const Home: React.FC<HomeProps> = () => {
               {isBlinkingWrong ?
                 <div className='text-center pt-3 text-red-700'>
                   <div className='flex justify-center'>
-                    <HiXCircle size={150} className='' />
+                    <HiXCircle size={100} className='' />
                   </div>
                 </div>
               : null}
