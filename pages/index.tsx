@@ -187,7 +187,7 @@ const Home: React.FC<HomeProps> = () => {
 
           <div className='flex pt-[4em]'>
             <div className='py-3 flex ml-auto gap-6'>
-              <Button onClick={handleAnswerToLocalStorage} className='text-xl'>Set Question</Button>
+              {/* <Button onClick={handleAnswerToLocalStorage} className='text-xl'>Set Question</Button> */}
               <Link href='/questions'>
                 <Button className='mr-[5em] text-xl' variant={`outline`}>Questions</Button>
               </Link>
