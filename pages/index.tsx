@@ -195,46 +195,52 @@ const Home: React.FC<HomeProps> = () => {
             </div>
           </div>
 
-          <div className='flex pt-[4em]'>
-            <div className='py-3 flex ml-auto gap-6'>
-              {/* <Button onClick={handleAnswerToLocalStorage} className='text-xl'>Set Question</Button> */}
-              <Link href='/questions'>
-                <Button className='mr-[5em] text-xl flex gap-1' variant={`outline`}>
-                  <HiOutlineServer size={20} className='' />
-                  Questions
-                </Button>
-              </Link>
-              <Button disabled={isAnimating} onClick={handleStartAnimation} className='text-xl flex gap-1'>
-                {isAnimating &&
-                  <Loader2 className="h-6 w-6 animate-spin" />
-                || 
-                  <HiOutlineSparkles size={20} className='' />
-                }
-                Acak Soal
-              </Button>
-              <audio ref={audioRouletteRef} src="/roulette.mp3" />
-              <Button disabled={!isAnimating} onClick={handleStopAnimation} variant={`destructive`} className='text-xl flex gap-1'>
-                <HiMinusCircle size={20} className='' />
-                Stop
-              </Button>
+          <div className='flex ml-auto pt-[4em] gap-8'>
+            <div className='w-full bg-green-200 p-3 rounded-lg'>
+              <h3 className='text-green-700'>Answer:</h3>
+              {isReady &&
+                <span>{currentQuestion?.answer || '-'}</span>
+              || null}
             </div>
-          </div>
-          <div className='flex gap-6 mt-2'>
-            <div className='py-3 flex ml-auto gap-[3em]'>
-              <Button onClick={handleClear} className='text-xl mr-[3.8em] flex gap-1'>
-                <HiOutlineTrash size={20} />
-                Clear
-              </Button>
-              <Button disabled={isAnimating} onClick={handleAnswerTrue} variant={`success`} className='text-xl flex gap-1'>
-                <HiOutlineThumbUp size={20} />
-                Benar
-              </Button>
-              <audio ref={audioRightRef} src="/right.mp3" />
-              <Button disabled={isAnimating} onClick={handleAnswerFalse} className='text-xl flex gap-1' variant={`destructive`}>
-                <HiOutlineX size={20} className='' />
-                Salah
-              </Button>
-              <audio ref={audioWrongRef} src="/wrong.mp3" />
+            <div className='w-full ml-auto'>
+              <div className='flex py-3 gap-6'>
+                {/* <Button onClick={handleAnswerToLocalStorage} className='text-xl'>Set Question</Button> */}
+                <Link href='/questions'>
+                  <Button className='mr-[5em] text-xl flex gap-1' variant={`outline`}>
+                    <HiOutlineServer size={20} className='' />
+                    Questions
+                  </Button>
+                </Link>
+                <Button disabled={isAnimating} onClick={handleStartAnimation} className='text-xl flex gap-1'>
+                  {isAnimating &&
+                    <Loader2 className="h-6 w-6 animate-spin" />
+                  || 
+                    <HiOutlineSparkles size={20} className='' />
+                  }
+                  Acak Soal
+                </Button>
+                <audio ref={audioRouletteRef} src="/roulette.mp3" />
+                <Button disabled={!isAnimating} onClick={handleStopAnimation} variant={`destructive`} className='text-xl flex gap-1'>
+                  <HiMinusCircle size={20} className='' />
+                  Stop
+                </Button>
+              </div>
+              <div className='py-3 flex mt-2 gap-[3em]'>
+                <Button onClick={handleClear} className='text-xl mr-[5.8em] flex gap-1'>
+                  <HiOutlineTrash size={20} />
+                  Clear
+                </Button>
+                <Button disabled={isAnimating} onClick={handleAnswerTrue} variant={`success`} className='text-xl flex gap-1'>
+                  <HiOutlineThumbUp size={20} />
+                  Benar
+                </Button>
+                <audio ref={audioRightRef} src="/right.mp3" />
+                <Button disabled={isAnimating} onClick={handleAnswerFalse} className='text-xl flex gap-1' variant={`destructive`}>
+                  <HiOutlineX size={20} className='' />
+                  Salah
+                </Button>
+                <audio ref={audioWrongRef} src="/wrong.mp3" />
+              </div>
             </div>
           </div>
         </div>
