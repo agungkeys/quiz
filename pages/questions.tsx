@@ -2,6 +2,7 @@
 
 import React, { ChangeEvent, useEffect, useState } from 'react';
 import Layout from '@/components/layout';
+import * as XLSX from 'xlsx';
 import {
   Table,
   TableBody,
@@ -27,7 +28,8 @@ import {
   HiOutlineTrash, 
   HiOutlineRefresh,
   HiOutlineCheckCircle,
-  HiOutlinePlus
+  HiOutlinePlus,
+  HiOutlineSave,
 } from "react-icons/hi";
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -35,6 +37,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/use-toast';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
+import { Loader2 } from 'lucide-react';
 
 interface QuestionsProps {
   // Add your prop types here
@@ -45,6 +48,10 @@ interface IQuestions {
   question?: string;
   answer?: string;
   status?: boolean;
+}
+
+interface ExcelData {
+  [key: string]: any; // Adjust this according to your Excel structure
 }
 
 const initForm = {
@@ -60,6 +67,8 @@ const Questions: React.FC<QuestionsProps> = () => {
   const [openDialog, setOpenDialog] = useState<boolean>(false);
   const [question, setQuestion] = useState<IQuestions>();
   const [formData, setFormData] = useState<IQuestions>(initForm);
+  const [mode, setMode] = useState<string>('question');
+  const [isLoadingUpload, setLoadingUpload] = useState<boolean>(false);
 
   useEffect(() => {
     loadData()
@@ -84,7 +93,8 @@ const Questions: React.FC<QuestionsProps> = () => {
     loadData()
   }
 
-  const handleOpenDialog = (data:IQuestions | null = null) => {
+  const handleOpenDialog = (mode?:string, data:IQuestions | null = null) => {
+    setMode(mode || '');
     setOpenDialog(true);
     if(data){
       setQuestion(data);
@@ -168,6 +178,124 @@ const Questions: React.FC<QuestionsProps> = () => {
     });
     loadData();
   }
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    setLoadingUpload(true);
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = (e) => {
+      const data = new Uint8Array(e.target?.result as ArrayBuffer);
+      const workbook = XLSX.read(data, { type: 'array' });
+
+      const sheetName = workbook.SheetNames[0];
+      const sheet = workbook.Sheets[sheetName];
+
+      const jsonData: ExcelData[] = XLSX.utils.sheet_to_json(sheet);
+      if(jsonData.length > 0) {
+        setLoadingUpload(false);
+        setOpenDialog(false);
+        localStorage.setItem('questions', JSON.stringify(jsonData));
+        loadData();
+      }
+    };
+
+    reader.readAsArrayBuffer(file);
+  };
+
+  const handleViewMode = () => {
+   switch (mode) {
+    case 'import':
+      return (<DialogContent className="max-w-lg">
+        <DialogHeader>
+          <DialogTitle>Upload Data Question</DialogTitle>
+        </DialogHeader>
+          {isLoadingUpload ?
+            <div className='flex items-center gap-2'>
+              <Loader2 className="h-6 w-6 animate-spin text-blue-700" /> 
+              <span className='text-gray-700'>Process to upload...</span>
+            </div>
+          :
+            <Input type="file" onChange={handleFileUpload} />
+          }
+        {/* <DialogFooter className="sm:justify-start">
+          <Button>Save</Button>
+        </DialogFooter> */}
+      </DialogContent>);
+      break;
+    case 'destroy':
+      return (<DialogContent className="max-w-lg">
+        <DialogHeader>
+          <DialogTitle>Delete All Data</DialogTitle>
+        </DialogHeader>
+      </DialogContent>);
+      break;
+   
+    default:
+      return (<DialogContent className="max-w-lg">
+        <DialogHeader>
+          <DialogTitle>{question?.id ? 'Edit Data Question' : 'Add Data Question'}</DialogTitle>
+        </DialogHeader>
+        <div className="grid gap-4 py-4">
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="question" className="text-right text-md">
+              Question
+            </Label>
+            <Textarea 
+              name='question'
+              className='col-span-3 w-full h-10 text-md' 
+              placeholder='Masukkan soal'
+              value={formData.question}
+              onChange={handleInputChange}
+            />
+            {/* <Input
+              id="name"
+              defaultValue="Pedro Duarte"
+              className="col-span-3"
+            /> */}
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="answer" className="text-right text-md">
+              Answer
+            </Label>
+            <Textarea 
+              name='answer'
+              className='col-span-3 w-full h-10 text-md' 
+              placeholder='Masukkan jawaban'
+              value={formData.answer}
+              onChange={handleInputChange}
+            />
+            {/* <Input
+              id="username"
+              defaultValue="@peduarte"
+              className="col-span-3"
+            /> */}
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="status" className="text-right text-md">
+              Status
+            </Label>
+            <Switch 
+              name="status" 
+              checked={formData.status}
+              onCheckedChange={handleStatusChange}
+            />
+            {/* <Input
+              id="username"
+              defaultValue="@peduarte"
+              className="col-span-3"
+            /> */}
+          </div>
+        </div>
+        <DialogFooter>
+          <Button onClick={question?.id ? () => handleUpdateData() : () => handleSaveData(question)}>Save</Button>
+        </DialogFooter>
+      </DialogContent>);
+      break;
+   }
+  }
   
   return (
     <Layout title="Questions">
@@ -177,6 +305,10 @@ const Questions: React.FC<QuestionsProps> = () => {
             <h1 className='font-semibold text-xl'>List Questions ({listQuestion.length} Data)</h1>
             <div className='ml-auto flex'>
               <div className='ml-auto flex gap-3'>
+                <Button variant={`destructive`} className='gap-2'>
+                  <HiOutlineTrash size={15} />
+                  Destroy All Data
+                </Button>
                 <Button onClick={handleResetStatus} variant={`outline`} className='gap-2'>
                   <HiOutlineRefresh size={15} />
                   Reset Status
@@ -184,6 +316,10 @@ const Questions: React.FC<QuestionsProps> = () => {
                 <Button className='gap-2' onClick={() => handleOpenDialog()}>
                   <HiOutlinePlus size={15} />
                   Add Data
+                </Button>
+                <Button variant={`outline`} className='gap-2' onClick={() => handleOpenDialog('import')}>
+                  <HiOutlineSave size={15} />
+                  Import Data
                 </Button>
               </div>
             </div>
@@ -209,7 +345,7 @@ const Questions: React.FC<QuestionsProps> = () => {
                   </span> : ''}</TableCell>
                   <TableCell className="text-right">
                     <div className='flex gap-2'>
-                      <Button onClick={() => handleOpenDialog(item)}>
+                      <Button onClick={() => handleOpenDialog('edit', item)}>
                         <HiOutlinePencil size={15} />
                       </Button>
                       <Button onClick={() => handleDeleteData(item.id)} variant={`destructive`}>
@@ -224,66 +360,7 @@ const Questions: React.FC<QuestionsProps> = () => {
         </div>
       </div>
       <Dialog open={openDialog} onOpenChange={setOpenDialog}>
-        <DialogContent className="max-w-lg">
-          <DialogHeader>
-            <DialogTitle>{question?.id ? 'Edit Data Question' : 'Add Data Question'}</DialogTitle>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="question" className="text-right text-md">
-                Question
-              </Label>
-              <Textarea 
-                name='question'
-                className='col-span-3 w-full h-10 text-md' 
-                placeholder='Masukkan soal'
-                value={formData.question}
-                onChange={handleInputChange}
-              />
-              {/* <Input
-                id="name"
-                defaultValue="Pedro Duarte"
-                className="col-span-3"
-              /> */}
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="answer" className="text-right text-md">
-                Answer
-              </Label>
-              <Textarea 
-                name='answer'
-                className='col-span-3 w-full h-10 text-md' 
-                placeholder='Masukkan jawaban'
-                value={formData.answer}
-                onChange={handleInputChange}
-              />
-              {/* <Input
-                id="username"
-                defaultValue="@peduarte"
-                className="col-span-3"
-              /> */}
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="status" className="text-right text-md">
-                Status
-              </Label>
-              <Switch 
-                name="status" 
-                checked={formData.status}
-                onCheckedChange={handleStatusChange}
-              />
-              {/* <Input
-                id="username"
-                defaultValue="@peduarte"
-                className="col-span-3"
-              /> */}
-            </div>
-          </div>
-          <DialogFooter>
-            <Button onClick={question?.id ? () => handleUpdateData() : () => handleSaveData(question)}>Save</Button>
-          </DialogFooter>
-        </DialogContent>
+        {handleViewMode()}
       </Dialog>
     </Layout>
   );

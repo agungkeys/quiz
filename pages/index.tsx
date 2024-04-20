@@ -47,6 +47,7 @@ const Home: React.FC<HomeProps> = () => {
   const [isShowAnswer, setIsShowAnswer] = useState<boolean>(false);
   const [isBlinkingWrong, setIsBlinkingWrong] = useState<boolean>(false);
   const [listQuestion, setListQuestion] = useState<IQuestions[]>([]);
+  const [isShowLabel, setShowLabel] = useState<boolean>(true);
 
   useEffect(() => {
     const dataLocal = localStorage.getItem('questions') || '';
@@ -154,6 +155,10 @@ const Home: React.FC<HomeProps> = () => {
     setIsReady(false);
   }
 
+  const handleClickLabel = () => {
+    setShowLabel(!isShowLabel);
+  }
+
 
   return (
     <Layout title="Home">
@@ -163,9 +168,11 @@ const Home: React.FC<HomeProps> = () => {
           <div className='mt-3'>
             <div className='bg-gray-100 rounded-2xl p-4 h-[15em] border-4'>
               <div className='flex justify-center items-center gap-2 pb-2'>
-                <h1 className='text-2xl font-semibold text-blue-700 text-center'>
-                  Question 
-                </h1>
+                {isShowLabel &&
+                  <h1 className='text-2xl font-semibold text-blue-700 text-center'>
+                    Question 
+                  </h1>
+                || null}
                 {isAnimating &&
                   <Loader2 className="h-6 w-6 animate-spin text-blue-700" />
                 || null }
@@ -179,7 +186,9 @@ const Home: React.FC<HomeProps> = () => {
           </div>
           <div className='mt-8'>
             <div className={`${isBlinkingWrong ? 'bg-red-200' : 'bg-blue-100'} rounded-2xl p-4 h-[13em]`}>
-            <h1 className='text-2xl font-semibold text-blue-700 pb-2 text-center'>Answer</h1>
+            {isShowLabel &&
+              <h1 className='text-2xl font-semibold text-blue-700 pb-2 text-center'>Answer</h1>
+            || null}
               {isShowAnswer && 
                 <div className='text-center'>
                   <span className='text-3xl font-semibold'>{currentQuestion.answer}</span>
@@ -219,7 +228,7 @@ const Home: React.FC<HomeProps> = () => {
                   }
                   Acak Soal
                 </Button>
-                <audio ref={audioRouletteRef} src="/roulette.mp3" />
+                <audio ref={audioRouletteRef} src="/roulete.mp3" />
                 <Button disabled={!isAnimating} onClick={handleStopAnimation} variant={`destructive`} className='text-xl flex gap-1'>
                   <HiMinusCircle size={20} className='' />
                   Stop
@@ -240,6 +249,11 @@ const Home: React.FC<HomeProps> = () => {
                   Salah
                 </Button>
                 <audio ref={audioWrongRef} src="/wrong.mp3" />
+              </div>
+              <div className='pt-3'>
+                <Button className='mr-[5em] text-xl flex gap-1' variant={`secondary`} size={`sm`} onClick={handleClickLabel}>
+                  {isShowLabel && `Hide` || `Show`} Label
+                </Button>
               </div>
             </div>
           </div>
