@@ -47,7 +47,7 @@ const Home: React.FC<HomeProps> = () => {
   const [isShowAnswer, setIsShowAnswer] = useState<boolean>(false);
   const [isBlinkingWrong, setIsBlinkingWrong] = useState<boolean>(false);
   const [listQuestion, setListQuestion] = useState<IQuestions[]>([]);
-  const [isShowLabel, setShowLabel] = useState<boolean>(true);
+  const [isShowLabel, setShowLabel] = useState<boolean>(false);
 
   useEffect(() => {
     const dataLocal = localStorage.getItem('questions') || '';
@@ -127,11 +127,11 @@ const Home: React.FC<HomeProps> = () => {
 
   const handleAnswerTrue = () => {
     setIsShowAnswer(true);
-    confetti({
-      particleCount: 300,
-      spread: 220,
-      origin: { y: 0.6 }
-    });
+    // confetti({
+    //   particleCount: 300,
+    //   spread: 220,
+    //   origin: { y: 0.6 }
+    // });
     if (audioRightRef.current) {
       audioRightRef.current.play();
     }
@@ -166,25 +166,30 @@ const Home: React.FC<HomeProps> = () => {
         {/* <h1 className='p-4 pt-12 text-4xl font-bold text-center'>Babak Ke-1</h1> */}
         <div className='pt-4 pb-4'>
           <div className='mt-3'>
-            <div className='bg-gray-100 rounded-2xl p-4 h-[15em] border-4'>
+            <div className='bg-gray-100 rounded-2xl p-5 py-[6em] border-4 items-center'>
               <div className='flex justify-center items-center gap-2 pb-2'>
                 {isShowLabel &&
                   <h1 className='text-2xl font-semibold text-blue-700 text-center'>
                     Question 
                   </h1>
                 || null}
-                {isAnimating &&
+                {/* {isAnimating &&
                   <Loader2 className="h-6 w-6 animate-spin text-blue-700" />
-                || null }
+                || null } */}
               </div>
               <div className='text-center'>
                 {isReady && 
-                  <span className='text-3xl'>{currentQuestion?.question || 'Soal Habis'}</span>
+                  <span className='text-6xl font-bold'>{currentQuestion?.question || 'Not Found'}</span>
+                || null}
+              </div>
+              <div className='text-center mt-5'>
+                {isReady && 
+                  <span className='text-5xl tracking-wider'>{currentQuestion?.answer || 'Import your data'}</span>
                 || null}
               </div>
             </div>
           </div>
-          <div className='mt-8'>
+          {/* <div className='mt-8'>
             <div className={`${isBlinkingWrong ? 'bg-red-200' : 'bg-blue-100'} rounded-2xl p-4 h-[13em]`}>
             {isShowLabel &&
               <h1 className='text-2xl font-semibold text-blue-700 pb-2 text-center'>Answer</h1>
@@ -202,7 +207,7 @@ const Home: React.FC<HomeProps> = () => {
                 </div>
               : null}
             </div>
-          </div>
+          </div> */}
 
           <div className='flex ml-auto pt-[4em] gap-8'>
             <div className='w-full bg-green-200 p-3 rounded-lg'>

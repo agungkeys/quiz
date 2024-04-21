@@ -179,6 +179,12 @@ const Questions: React.FC<QuestionsProps> = () => {
     loadData();
   }
 
+  const handleDeleteAllData = () => {
+    localStorage.removeItem('questions');
+    setOpenDialog(false);
+    loadData();
+  }
+
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     setLoadingUpload(true);
@@ -230,6 +236,10 @@ const Questions: React.FC<QuestionsProps> = () => {
         <DialogHeader>
           <DialogTitle>Delete All Data</DialogTitle>
         </DialogHeader>
+        <Button variant={`destructive`} className='gap-2' onClick={handleDeleteAllData}>
+          <HiOutlineTrash size={15} />
+          Delete All Data
+        </Button>
       </DialogContent>);
       break;
    
@@ -305,9 +315,9 @@ const Questions: React.FC<QuestionsProps> = () => {
             <h1 className='font-semibold text-xl'>List Questions ({listQuestion.length} Data)</h1>
             <div className='ml-auto flex'>
               <div className='ml-auto flex gap-3'>
-                <Button variant={`destructive`} className='gap-2'>
+                <Button variant={`destructive`} className='gap-2' onClick={() => handleOpenDialog('destroy')}>
                   <HiOutlineTrash size={15} />
-                  Destroy All Data
+                  Delete All Data
                 </Button>
                 <Button onClick={handleResetStatus} variant={`outline`} className='gap-2'>
                   <HiOutlineRefresh size={15} />
