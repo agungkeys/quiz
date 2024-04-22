@@ -47,6 +47,7 @@ interface IQuestions {
   id?: number;
   question?: string;
   answer?: string;
+  gift?: string;
   status?: boolean;
 }
 
@@ -340,6 +341,7 @@ const Questions: React.FC<QuestionsProps> = () => {
                 <TableHead className="w-[20px]">ID</TableHead>
                 <TableHead>Questions</TableHead>
                 <TableHead>Answer</TableHead>
+                <TableHead>Gift</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead className="text-right">Action</TableHead>
               </TableRow>
@@ -348,9 +350,10 @@ const Questions: React.FC<QuestionsProps> = () => {
               {listQuestion.map((item) => (
                 <TableRow key={item.id}>
                   <TableCell className="font-medium">{item.id}</TableCell>
-                  <TableCell>{item.question}</TableCell>
-                  <TableCell>{item.answer}</TableCell>
-                  <TableCell>{item.status ? <span className='text-green-500'>
+                  <TableCell>{item?.question || '-'}</TableCell>
+                  <TableCell>{item?.answer || '-'}</TableCell>
+                  <TableCell>{item?.gift ?? '-'}</TableCell>
+                  <TableCell>{item?.status ? <span className='text-green-500'>
                     <HiOutlineCheckCircle size={28} />
                   </span> : ''}</TableCell>
                   <TableCell className="text-right">

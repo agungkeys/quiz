@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import confetti from 'canvas-confetti';
 import Link from 'next/link';
 import { Loader2 } from "lucide-react"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { 
   HiXCircle, 
   HiOutlineTrash, 
@@ -24,35 +25,32 @@ interface IQuestions {
   id: number;
   question?: string;
   answer?: string;
+  gift?: string;
   status?: boolean;
 }
 
 const Home: React.FC<HomeProps> = () => {
-
-  const questions:IQuestions[] = [
-    { id: 1, question: 'Produk PKT yang memiliki bau yang tajam dan sifat iritan adalah amoniak. Amoniak memiliki rumus kimia…', answer: 'NH3', status: false },
-    { id: 2, question: 'Alat yang berfungsi untuk melindungi kepala dari jatuhnya benda-benda asing di dalam pabrik adalah...', answer: 'SAFETY HELMET, HELM, TOPI KESELAMATAN', status: false },
-    { id: 3, question: 'Kadar oksigen normal di dalam ruang terbatas yang diizinkan adalah pada interval 19,5% - 23,5%.  Berapa Nilai Ambang Batas yang diizinkan untuk paparan ammonia di area pabrik selama 8 jam adalah …. ppm', answer: '25 ppm', status: false },
-    { id: 4, question: 'Alat pelindung telinga pada saat bekerja di tempat dengan tingkat kebisingan 85 - 95 dB adalah....', answer: 'EAR PLUG', status: false },
-    { id: 5, question: '⁠Suatu tanda yang berada di permukaan jalan atau di atas permukaan jalan yang meliputi peralatan atau tanda yang membentuk garis membujur, garis melintang, garis serong serta lambang lainnya yang berfungsi untuk mengarahkan arus lalu lintas dan membatasi daerah kepentingan lalu lintas disebut....', answer: 'Marka jalan', status: false },
-  ];
-
   const audioWrongRef = useRef<HTMLAudioElement>(null);
   const audioRightRef = useRef<HTMLAudioElement>(null);
   const audioRouletteRef = useRef<HTMLAudioElement>(null);
   const [isReady, setIsReady] = useState<boolean>(false);
-  const [currentQuestion, setCurrentQuestion] = useState<IQuestions>(questions[0]);
+  const [currentQuestion, setCurrentQuestion] = useState<IQuestions>({id: 0, question: '', answer: '', gift: '', status: false});
   const [isAnimating, setIsAnimating] = useState<boolean>(false);
   // const [usedQuestions, setUsedQuestions] = useState<IQuestions[]>([]);
   const [isShowAnswer, setIsShowAnswer] = useState<boolean>(false);
   const [isBlinkingWrong, setIsBlinkingWrong] = useState<boolean>(false);
   const [listQuestion, setListQuestion] = useState<IQuestions[]>([]);
   const [isShowLabel, setShowLabel] = useState<boolean>(false);
+  const [valueGift, setGift] = useState<string>('');
+  const [winner1, setWinner1] = useState<IQuestions[]>([]);
+  const [winner2, setWinner2] = useState<IQuestions[]>([]);
+  const [winner3, setWinner3] = useState<IQuestions[]>([]);
 
   useEffect(() => {
     const dataLocal = localStorage.getItem('questions') || '';
     const data = dataLocal ? JSON.parse(dataLocal) : [];
     setListQuestion(data);
+    loadDataWinner();
   }, [])
   
 
@@ -85,7 +83,7 @@ const Home: React.FC<HomeProps> = () => {
           const newQuestion = availableQuestions[randomIndex];
           setCurrentQuestion(newQuestion);
         }
-      }, 70);
+      }, 100);
     }
 
     return () => clearInterval(interval);
@@ -113,16 +111,18 @@ const Home: React.FC<HomeProps> = () => {
   }
 
   const handleSetQuestion = () => {
-    const indexToUpdate = listQuestion.findIndex((item: { id: number }) => item.id === currentQuestion.id);
+    const indexToUpdate = listQuestion.findIndex((item: { id: number }) => item.id === currentQuestion?.id);
 
     if (indexToUpdate !== -1) {
       listQuestion[indexToUpdate] = {
         ...listQuestion[indexToUpdate],
         status: true,
+        gift: valueGift,
       };
 
       localStorage.setItem('questions', JSON.stringify(listQuestion));
     }
+    setGift('');
   };
 
   const handleAnswerTrue = () => {
@@ -136,6 +136,7 @@ const Home: React.FC<HomeProps> = () => {
       audioRightRef.current.play();
     }
     handleSetQuestion();
+    loadDataWinner();
   }
 
   const handleAnswerFalse = () => {
@@ -145,10 +146,10 @@ const Home: React.FC<HomeProps> = () => {
     }
   }
 
-  const handleAnswerToLocalStorage = () => {
-    const data = JSON.stringify(questions);
-    localStorage.setItem('questions', data)
-  }
+  // const handleAnswerToLocalStorage = () => {
+  //   const data = JSON.stringify(questions);
+  //   localStorage.setItem('questions', data)
+  // }
 
   const handleClear = () => {
     setIsShowAnswer(false);
@@ -159,14 +160,29 @@ const Home: React.FC<HomeProps> = () => {
     setShowLabel(!isShowLabel);
   }
 
+  const handleSelectGift = (e: React.SetStateAction<string>) => {
+    setGift(e)
+  }
+
+  const loadDataWinner = () => {
+    const data = localStorage.getItem('questions') || '';
+    let dataWinner1: IQuestions[] = JSON.parse(data).filter((dt:IQuestions) => dt.gift === 'voucher1');
+    setWinner1(dataWinner1);
+    let dataWinner2: IQuestions[] = JSON.parse(data).filter((dt:IQuestions) => dt.gift === 'voucher2');
+    setWinner2(dataWinner2);
+    let dataWinner3: IQuestions[] = JSON.parse(data).filter((dt:IQuestions) => dt.gift === 'grandprize');
+    setWinner3(dataWinner3);
+  }
+
+
 
   return (
     <Layout title="Home">
-      <div className='max-w-screen-xl mx-auto px-4'>
+      <div className='max-w-screen-2xl mx-auto'>
         {/* <h1 className='p-4 pt-12 text-4xl font-bold text-center'>Babak Ke-1</h1> */}
         <div className='pt-4 pb-4'>
-          <div className='mt-3'>
-            <div className='bg-gray-100 rounded-2xl p-5 py-[6em] border-4 items-center'>
+          <div className='mt-1'>
+            <div className='rounded-2xl border-4 border-gray-300 h-[14em] py-[2em] mx-[4em] items-center'>
               <div className='flex justify-center items-center gap-2 pb-2'>
                 {isShowLabel &&
                   <h1 className='text-2xl font-semibold text-blue-700 text-center'>
@@ -209,56 +225,112 @@ const Home: React.FC<HomeProps> = () => {
             </div>
           </div> */}
 
-          <div className='flex ml-auto pt-[4em] gap-8'>
-            <div className='w-full bg-green-200 p-3 rounded-lg'>
+          <div className='flex ml-auto gap-8'>
+            {/* <div className='w-full bg-green-200 p-3 rounded-lg'>
               <h3 className='text-green-700'>Answer:</h3>
               {isReady &&
                 <span>{currentQuestion?.answer || '-'}</span>
               || null}
-            </div>
+            </div> */}
             <div className='w-full ml-auto'>
               <div className='flex py-3 gap-6'>
                 {/* <Button onClick={handleAnswerToLocalStorage} className='text-xl'>Set Question</Button> */}
                 <Link href='/questions'>
-                  <Button className='mr-[5em] text-xl flex gap-1' variant={`outline`}>
+                  <Button className='ml-[10em] text-xl flex gap-1' variant={`outline`} size={`sm`}>
                     <HiOutlineServer size={20} className='' />
-                    Questions
+                    All Data
                   </Button>
                 </Link>
-                <Button disabled={isAnimating} onClick={handleStartAnimation} className='text-xl flex gap-1'>
+                <Button onClick={handleClear} className='mr-[5em] text-xl flex gap-1' size={`sm`}>
+                  <HiOutlineTrash size={20} />
+                  Clear
+                </Button>
+                <Button disabled={isAnimating} onClick={handleStartAnimation} className='text-xl flex gap-1' variant={`success`} size={`sm`}>
                   {isAnimating &&
                     <Loader2 className="h-6 w-6 animate-spin" />
                   || 
                     <HiOutlineSparkles size={20} className='' />
                   }
-                  Acak Soal
+                  Acak
                 </Button>
                 <audio ref={audioRouletteRef} src="/roulete.mp3" />
-                <Button disabled={!isAnimating} onClick={handleStopAnimation} variant={`destructive`} className='text-xl flex gap-1'>
+                <Button disabled={!isAnimating} onClick={handleStopAnimation} variant={`destructive`} className='text-xl flex gap-1' size={`sm`}>
                   <HiMinusCircle size={20} className='' />
                   Stop
                 </Button>
-              </div>
-              <div className='py-3 flex mt-2 gap-[3em]'>
-                <Button onClick={handleClear} className='text-xl mr-[5.8em] flex gap-1'>
-                  <HiOutlineTrash size={20} />
-                  Clear
-                </Button>
-                <Button disabled={isAnimating} onClick={handleAnswerTrue} variant={`success`} className='text-xl flex gap-1'>
+                <div className='ml-4 mw-[2em]'>
+                  <Select onValueChange={handleSelectGift} value={valueGift}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select gift" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="voucher1">Voucher 1</SelectItem>
+                      <SelectItem value="voucher2">Voucher 2</SelectItem>
+                      <SelectItem value="grandprize">Grand Prize</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <Button disabled={isAnimating} onClick={handleAnswerTrue} variant={`success`} className='text-xl flex gap-1' size={`sm`}>
                   <HiOutlineThumbUp size={20} />
-                  Benar
+                  WINS
                 </Button>
                 <audio ref={audioRightRef} src="/right.mp3" />
-                <Button disabled={isAnimating} onClick={handleAnswerFalse} className='text-xl flex gap-1' variant={`destructive`}>
+                {/* <Button disabled={isAnimating} onClick={handleAnswerFalse} className='text-xl flex gap-1' variant={`destructive`}>
                   <HiOutlineX size={20} className='' />
                   Salah
                 </Button>
-                <audio ref={audioWrongRef} src="/wrong.mp3" />
+                <audio ref={audioWrongRef} src="/wrong.mp3" /> */}
               </div>
-              <div className='pt-3'>
-                <Button className='mr-[5em] text-xl flex gap-1' variant={`secondary`} size={`sm`} onClick={handleClickLabel}>
+              <div className='flex justify-end mt-2 gap-2'>
+                {/* <Button onClick={handleClear} className='text-xl flex gap-1'>
+                  <HiOutlineTrash size={20} />
+                  Clear
+                </Button> */}
+                {/* <Button className='text-xl' variant={`secondary`} size={`sm`} onClick={handleClickLabel}>
                   {isShowLabel && `Hide` || `Show`} Label
-                </Button>
+                </Button> */}
+              </div>
+            </div>
+          </div>
+
+          <div className='grid grid-cols-3 gap-4'>
+            <div className='rounded-xl border-2 border-gray-100 p-4'>
+              <h1 className='mb-3'>10 Pemenang Voucher MAP I</h1>
+              <div className='grid grid-cols-2 gap-2'>
+                {winner1.map(item => 
+                  <div key={item.id} className='bg-yellow-100 rounded-xl p-2'>
+                    <span>{item?.question || '-'}</span>
+                    <div>
+                      <span className='font-bold'>{item?.answer || '-'}</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+            <div className='rounded-xl border-2 border-gray-100 p-4'>
+              <h1>10 Pemenang Voucher MAP 2</h1>
+              <div className='grid grid-cols-2 gap-2'>
+                {winner2.map(item => 
+                  <div key={item.id} className='bg-green-100 rounded-xl p-2'>
+                    <span>{item?.question || '-'}</span>
+                    <div>
+                      <span className='font-bold'>{item?.answer || '-'}</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+            <div className='rounded-xl border-2 border-gray-100 p-4'>
+              <h1>5 Pemenang Grand Prize</h1>
+              <div className='grid grid-cols-2 gap-2'>
+                {winner3.map(item => 
+                  <div key={item.id} className='bg-blue-100 rounded-xl p-2'>
+                    <span>{item?.question || '-'}</span>
+                    <div>
+                      <span className='font-bold'>{item?.answer || '-'}</span>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
