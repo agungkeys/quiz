@@ -166,11 +166,11 @@ const Home: React.FC<HomeProps> = () => {
 
   const loadDataWinner = () => {
     const data = localStorage.getItem('questions') || '';
-    let dataWinner1: IQuestions[] = JSON.parse(data).filter((dt:IQuestions) => dt.gift === 'voucher1');
+    let dataWinner1: IQuestions[] = data ? JSON.parse(data).filter((dt:IQuestions) => dt.gift === 'voucher1') : [];
     setWinner1(dataWinner1);
-    let dataWinner2: IQuestions[] = JSON.parse(data).filter((dt:IQuestions) => dt.gift === 'voucher2');
+    let dataWinner2: IQuestions[] = data ? JSON.parse(data).filter((dt:IQuestions) => dt.gift === 'voucher2'): [];
     setWinner2(dataWinner2);
-    let dataWinner3: IQuestions[] = JSON.parse(data).filter((dt:IQuestions) => dt.gift === 'grandprize');
+    let dataWinner3: IQuestions[] = data ? JSON.parse(data).filter((dt:IQuestions) => dt.gift === 'grandprize') : [];
     setWinner3(dataWinner3);
   }
 
